@@ -22,3 +22,4 @@ go.work
 
 # IDE and local
 .history*
+bin*
