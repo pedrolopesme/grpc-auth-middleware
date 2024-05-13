@@ -41,7 +41,7 @@ endif
 build: ## build proto files, server and client bin
 	protoc -I./${PROTO_DIR} --go_opt=module=${PACKAGE} --go_out=${PROTO_DIR} --go-grpc_opt=module=${PACKAGE} --go-grpc_out=${PROTO_DIR} ${PROTO_DIR}/*.proto
 	go build -o ${BIN_DIR}/${SERVER_BIN} ./${SERVER_DIR}
-	# go build -o ${BIN_DIR}/$@/${CLIENT_BIN} ./$@/${CLIENT_DIR}
+	go build -o ${BIN_DIR}/${CLIENT_BIN} ./${CLIENT_DIR}
 
 test: all ## Launch tests
 	go test ./...
