@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package hello;
+
+option go_package = "github.com/pedrolopeme/grpc-auth-middleware";
+
+message Hello {
+    string Name = 1;
+}
+
+message HelloResponse {
+    string Response = 1;
+}
+
+service HelloHandler {
+    rpc SayHello(Hello) returns (HelloResponse);
+}
