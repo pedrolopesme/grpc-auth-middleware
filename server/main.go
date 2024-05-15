@@ -26,13 +26,17 @@ func main() {
 	log.Printf("server listening at %v", listener.Addr())
 
 	// Create a new gRPC server.
-	s := grpc.NewServer()
+	server := grpc.NewServer(
+		grpc.UnaryInterceptor(
+			AuthInterceptor,
+		),
+	)
 
 	// Register the HelloHandlerServer implementation with the server.
-	pb.RegisterHelloHandlerServer(s, &Server{})
+	pb.RegisterHelloHandlerServer(server, &Server{})
 
 	// Start serving requests on the listener.
-	if err := s.Serve(listener); err != nil {
+	if err := server.Serve(listener); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
 }
