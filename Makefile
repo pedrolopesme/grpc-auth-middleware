@@ -44,6 +44,12 @@ build: ## build proto files, server and client bin
 	go build -o ${BIN_DIR}/${SERVER_BIN} ./${SERVER_DIR}
 	go build -o ${BIN_DIR}/${CLIENT_BIN} ./${CLIENT_DIR}
 
+run-server: ## runs server
+	./bin/server
+
+run-client: ## runs client app (and send a message)
+	./bin/client
+
 test: all ## Launch tests
 	go test ./...
 
