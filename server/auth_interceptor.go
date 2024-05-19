@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"strings"
 
+	"github.com/golang-jwt/jwt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -33,13 +35,60 @@ func AuthInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServe
 		return nil, status.Errorf(codes.Unauthenticated, "invalid access token")
 	}
 
+	fmt.Println("The provided access is valid.")
+
 	// Continue processing the request.
 	return handler(ctx, req)
 }
 
-// validateAccessToken validating the access token.
+// validateAccessToken validates the access token using JWT and checks the "scope" claim.
+//
+// This function parses the provided JWT token and verifies its signature using the given secret key.
+// It then extracts the claims from the token and checks if the "scope" claim exists and contains the string "demo".
 func validateAccessToken(token string) (bool, error) {
-	// TODO: Implement OpenID Connect validation logic.
-	fmt.Println("Validating access token:", token)
-	return true, nil
+	// Parse the JWT token.
+	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+
+		// Use your secret key to validate the token.
+		return []byte("my-super-secret"), nil
+	})
+
+	if err != nil {
+		return false, fmt.Errorf("failed to parse token: %v", err)
+	}
+
+	// Check if the token is valid.
+	if !parsedToken.Valid {
+		return false, fmt.Errorf("invalid token")
+	}
+
+	// Extract the claims from the token.
+	claims, ok := parsedToken.Claims.(jwt.MapClaims)
+	if !ok {
+		return false, fmt.Errorf("invalid token claims")
+	}
+
+	// Check if the "scope" claim exists.
+	scope, ok := claims["scope"]
+	if !ok {
+		return false, fmt.Errorf("missing scope claim")
+	}
+
+	// Convert the scope claim to a string array.
+	scopeArray, ok := scope.([]interface{})
+	if !ok {
+		return false, fmt.Errorf("invalid scope claim format")
+	}
+
+	// Check if the "demo" string is present in the scope array.
+	for _, s := range scopeArray {
+		if strings.EqualFold(s.(string), "demo") {
+			return true, nil
+		}
+	}
+
+	return false, fmt.Errorf("missing 'demo' scope")
 }
