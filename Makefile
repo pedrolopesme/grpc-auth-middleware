@@ -39,6 +39,7 @@ endif
 .DEFAULT_GOAL := help
 
 build: ## build proto files, server and client bin
+	go mod download
 	protoc -I./${PROTO_DIR} --go_opt=module=${PACKAGE} --go_out=${PROTO_DIR} --go-grpc_opt=module=${PACKAGE} --go-grpc_out=${PROTO_DIR} ${PROTO_DIR}/*.proto
 	go build -o ${BIN_DIR}/${SERVER_BIN} ./${SERVER_DIR}
 	go build -o ${BIN_DIR}/${CLIENT_BIN} ./${CLIENT_DIR}
